@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import random
+import json
 
 DARK = "#001C30"
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -34,22 +35,47 @@ def gen_password():
     password_entry.insert(0, password)
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save_password():
-    website = website_entry.get()
+    website = website_entry.get().title()
     email = email_entry.get()
     password = password_entry.get()
+    new_data = {
+        website:{
+            'email': email,
+            'password': password,
+        }
+    }
 
     if website == "" or password == "":
         messagebox.showwarning(title="OOPS", message="Some fields are empty! Please fill in all information.")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \n\nEmail: {email}\nPassword: {password}\n\nSave?")
+        try:
+            with open("data.json", "r") as data:
+                #Reading old data
+                read_data = json.load(data)
+                #Updating old data with new data
+                read_data.update(new_data)
 
-        if is_ok:
-            with open("data.txt", "a") as data:
-                data.write(f"{website} | {email} | {password}\n")
+            with open("data.json", "w") as data:            
+                #Saving updated data
+                json.dump(read_data, data, indent=4)
+        except:
+            with open("data.json", "w") as data:
+                json.dump(new_data, data, indent=4)
+        finally:
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
     
+# ---------------------------- SEARCH INFO ------------------------------- #
+def search_info():
+    website = website_entry.get().title()
 
+    with open("data.json", "r") as data:
+        read_data = json.load(data)
+        try:
+            if read_data[website]:
+                messagebox.showinfo(title=f"{website}", message=f"Email: {read_data[website]['email']}\nPassword: {read_data[website]['password']}")
+        except KeyError:
+            messagebox.showerror(title="Data Not Found", message="No Data found with that Website name.")
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -57,10 +83,10 @@ window.title("Password Manager")
 window.config(padx=50, pady=50, bg=DARK)
 
 canvas = Canvas(width=200, height=200, bg=DARK, highlightthickness= 0)
-bg_image = PhotoImage(file="logo.png")
+#bg_image = PhotoImage(file="..\img\logo.png")
+bg_image = PhotoImage(file="img\logo.png")
 canvas.create_image(100, 100, image=bg_image)
 canvas.grid(column=1,row=0)
-
 
 #Label
 website_label = Label(text="Website:", bg=DARK, fg="white")
@@ -73,18 +99,21 @@ password_label = Label(text="Password:", bg=DARK, fg="white")
 password_label.grid(column=0, row=3)
 
 #Entries
-website_entry = Entry(width=55)
+website_entry = Entry(width=34)
 website_entry.focus()
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry.grid(column=1, row=1)
 
 email_entry = Entry(width=55)
 email_entry.insert(END, "123@gmail.com")
 email_entry.grid(column=1, row=2, columnspan=2)
 
-password_entry = Entry(width=34)
+password_entry = Entry(width=33)
 password_entry.grid(column=1, row=3)
 
 #Buttons
+search_ = Button(text="Search", width=14, font=("Arial", 10), command=search_info)
+search_.grid(column=2, row=1)
+
 generate_password = Button(text="Generate Password", font=("Arial", 10), command=gen_password)
 generate_password.grid(column=2, row=3)
 
