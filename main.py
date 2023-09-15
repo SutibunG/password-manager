@@ -64,7 +64,6 @@ def save_password():
         finally:
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
-    
 # ---------------------------- SEARCH INFO ------------------------------- #
 def search_info():
     website = website_entry.get().title()
@@ -76,7 +75,6 @@ def search_info():
                 messagebox.showinfo(title=f"{website}", message=f"Email: {read_data[website]['email']}\nPassword: {read_data[website]['password']}")
         except KeyError:
             messagebox.showerror(title="Data Not Found", message="No Data found with that Website name.")
-
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Password Manager")
@@ -104,7 +102,7 @@ website_entry.focus()
 website_entry.grid(column=1, row=1)
 
 email_entry = Entry(width=55)
-email_entry.insert(END, "123@gmail.com")
+email_entry.insert(END, "email_here@gmail.com")
 email_entry.grid(column=1, row=2, columnspan=2)
 
 password_entry = Entry(width=33)
